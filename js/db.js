@@ -22,7 +22,9 @@
   DB.init = async function () {
     if (!DB.configurado()) { DB.modo = 'demo'; demoCargar(); return; }
     DB.modo = 'supabase';
-    await cargarScript('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.50.0/dist/umd/supabase.min.js');
+    // Versión fija + hash de integridad (SRI): si el CDN sirviera un archivo alterado, el navegador no lo ejecuta
+    await cargarScript('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.50.0/dist/umd/supabase.min.js',
+      'sha384-jP+y6mxch/vbLrNpx4basfv6ciZQuHwdRHgZGa6Mhja0Xm4p87ok2OQavTrRIGxH');
     sb = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
   };
 
@@ -164,9 +166,11 @@
   function uid() {
     return (crypto.randomUUID ? crypto.randomUUID() : 'id' + Math.random().toString(36).slice(2) + Date.now());
   }
-  function cargarScript(src) {
+  function cargarScript(src, integridad) {
     return new Promise((ok, ko) => {
       const s = document.createElement('script');
+      if (integridad) { s.integrity = integridad; s.crossOrigin = 'anonymous'; }
+      s.referrerPolicy = 'no-referrer';
       s.src = src; s.onload = ok; s.onerror = () => ko(new Error('No se pudo cargar ' + src));
       document.head.appendChild(s);
     });

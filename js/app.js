@@ -2,6 +2,9 @@
 //  Cuidando a la abuela · lógica de la app
 // =====================================================================
 (function () {
+  // Anti-clickjacking: GitHub Pages no permite la cabecera X-Frame-Options, así que no dejamos que nos metan en un iframe
+  if (window.top !== window.self) { document.documentElement.innerHTML = ''; return; }
+
   const $ = s => document.querySelector(s);
   const esc = U.esc;
   const lsGet = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
@@ -376,9 +379,9 @@
     return `<div>${items.map(({ m, h }) => {
       const tm = DB.cache.tomas.find(x => x.medicamento_id === m.id && x.fecha === fecha && x.hora === h);
       const pasada = fecha < hoy || (fecha === hoy && h <= U.hm(ahora));
-      return `<button class="toma ${tm ? 'hecha' : ''} ${pasada ? 'pasada' : ''}" data-accion="toma" data-med="${m.id}" data-fecha="${fecha}" data-hora="${h}">
+      return `<button class="toma ${tm ? 'hecha' : ''} ${pasada ? 'pasada' : ''}" data-accion="toma" data-med="${esc(m.id)}" data-fecha="${esc(fecha)}" data-hora="${esc(h)}">
         <span class="check">${tm ? '✓' : ''}</span>
-        <span class="hora">${h}</span>
+        <span class="hora">${esc(h)}</span>
         <span style="flex:1;min-width:0"><strong>${esc(m.nombre)}</strong> ${m.dosis ? `<span class="suave">${esc(m.dosis)}</span>` : ''}
           ${tm ? `<div class="quien">Dada por ${esc(U.persona(tm.persona).nombre)} a las ${U.hm(tm.created_at)}</div>` : ''}
           ${!tm && m.notas ? `<div class="pista">${esc(m.notas)}</div>` : ''}</span>
@@ -407,7 +410,7 @@
             <div style="min-width:0">
               <strong>${esc(m.nombre)}</strong> ${m.dosis ? `<span class="suave">${esc(m.dosis)}</span>` : ''}
               ${m.activo === false ? '<span class="pista">(ya no la toma)</span>' : ''}
-              <div class="horas-chips">${(m.horas || []).map(h => `<span>${h}</span>`).join('') || '<span>Sin hora fija</span>'}</div>
+              <div class="horas-chips">${(m.horas || []).map(h => `<span>${esc(h)}</span>`).join('') || '<span>Sin hora fija</span>'}</div>
               ${m.notas ? `<div class="pista" style="margin-top:4px">${esc(m.notas)}</div>` : ''}
             </div>
             <button class="btn sec mini" data-accion="med-editar" data-id="${m.id}">Editar</button>
@@ -419,7 +422,7 @@
   function formMed(m) {
     const nuevo = !m;
     const horas = m?.horas?.length ? m.horas : ['09:00'];
-    const filaHora = h => `<div class="h-fila"><input type="time" name="hora" value="${h}"><button type="button" class="icono-btn" data-quitar-hora aria-label="Quitar hora">×</button></div>`;
+    const filaHora = h => `<div class="h-fila"><input type="time" name="hora" value="${esc(h)}"><button type="button" class="icono-btn" data-quitar-hora aria-label="Quitar hora">×</button></div>`;
     modal(`
       <h2>${nuevo ? 'Nuevo medicamento' : 'Editar medicamento'}</h2>
       <div class="campo"><label>Nombre</label><input type="text" name="nombre" value="${esc(m?.nombre || '')}" required placeholder="p. ej. Omeprazol"></div>
@@ -510,7 +513,7 @@
     let meta = '';
     if (t.fecha) {
       const urg = !t.hecha && t.fecha <= hoy;
-      meta = `<div class="t-meta ${urg ? 'urgente' : ''}">${t.tipo === 'cita' ? '📅 ' : ''}${U.diaRelativo(U.deFechaHora(t.fecha))}${t.hora ? ' · ' + t.hora : ''}${!t.hecha && t.fecha < hoy ? ' (pasada)' : ''}</div>`;
+      meta = `<div class="t-meta ${urg ? 'urgente' : ''}">${t.tipo === 'cita' ? '📅 ' : ''}${U.diaRelativo(U.deFechaHora(t.fecha))}${t.hora ? ' · ' + esc(t.hora) : ''}${!t.hecha && t.fecha < hoy ? ' (pasada)' : ''}</div>`;
     }
     if (t.hecha && t.hecha_por) meta += `<div class="t-meta">Hecho por ${esc(U.persona(t.hecha_por).nombre)}</div>`;
     return `<li class="tarea ${t.hecha ? 'hecha' : ''}">
@@ -559,8 +562,8 @@
       <div class="campo"><label>Tipo</label>
         <select name="tipo">${['cita', 'tarea', 'compra'].map(k => `<option value="${k}" ${k === tipo ? 'selected' : ''}>${{ cita: 'Cita', tarea: 'Tarea', compra: 'Compra' }[k]}</option>`).join('')}</select></div>
       <div class="fila">
-        <div class="campo"><label>Día ${tipo === 'cita' ? '' : '(opcional)'}</label><input type="date" name="fecha" value="${t?.fecha || ''}"></div>
-        <div class="campo"><label>Hora (opcional)</label><input type="time" name="hora" value="${t?.hora || ''}"></div>
+        <div class="campo"><label>Día ${tipo === 'cita' ? '' : '(opcional)'}</label><input type="date" name="fecha" value="${esc(t?.fecha || '')}"></div>
+        <div class="campo"><label>Hora (opcional)</label><input type="time" name="hora" value="${esc(t?.hora || '')}"></div>
       </div>
       <div class="acciones">
         ${nuevo ? '' : '<button type="button" class="btn peligro izq" data-borrar>Borrar</button>'}
