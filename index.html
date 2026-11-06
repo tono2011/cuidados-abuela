@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Cuidando a la abuela</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#c8643b">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Abuela">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon-180.png">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <!-- Pantalla de carga / acceso / elegir persona -->
+  <section id="pantalla-inicio" class="pantalla">
+    <div class="inicio-caja">
+      <div class="logo">🏠</div>
+      <h1 id="titulo-inicio">Cuidando a la abuela</h1>
+      <div id="inicio-contenido"><p class="suave">Cargando…</p></div>
+    </div>
+  </section>
+
+  <!-- App -->
+  <div id="app" hidden>
+    <header class="cabecera">
+      <div class="cab-titulo">
+        <span class="cab-logo">🏠</span>
+        <span id="titulo-app">Cuidando a la abuela</span>
+      </div>
+      <button class="cab-persona" data-accion="cambiar-persona" aria-label="Cambiar de persona">
+        <span id="cab-persona"></span>
+      </button>
+    </header>
+    <div id="banner-demo" class="banner" hidden>
+      Modo prueba: los datos solo se guardan en este navegador.
+      <button class="enlace" data-accion="demo-reiniciar">Reiniciar datos de ejemplo</button>
+    </div>
+
+    <main id="vista"></main>
+
+    <nav class="barra" aria-label="Secciones">
+      <button data-vista="hoy"><span>☀️</span>Hoy</button>
+      <button data-vista="turnos"><span>🗓️</span>Turnos</button>
+      <button data-vista="diario"><span>📝</span>Diario</button>
+      <button data-vista="medicacion"><span>💊</span>Medicación</button>
+      <button data-vista="agenda"><span>✅</span>Agenda</button>
+      <button data-vista="contactos"><span>📞</span>Contactos</button>
+    </nav>
+  </div>
+
+  <dialog id="modal"><form method="dialog" id="modal-form" novalidate></form></dialog>
+  <div id="toast" role="status" aria-live="polite"></div>
+
+  <script src="config.js"></script>
+  <script src="js/util.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
